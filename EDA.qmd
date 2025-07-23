@@ -1,0 +1,26 @@
+---
+title: "EDA"
+format: pdf
+editor: visual
+---
+
+## Introduction
+
+The data being used in this project is sourced from the Behavioral Risk Factor 
+Surveillance System (BRFSS) which is a telephone based survey that is collected
+annually be the CDC. There are three data sets available from the BRFSS, but the 
+scope of this analysis is limited to one, 
+diabetes _ binary _ health _ indicators _ BRFSS2015.csv. This is a clean data set
+with 253,680 responses. The variable of interest is Diabetes_binary which denotes
+no diabetes with 0 and pre-diabetes or diabetes with 1. There are 21 other variables included that may have relation to the variable of interest.
+
+The variables that will be used in EDA and modelling are BMI, whether or not the responder has higher cholesterol, and whether or not the responder consumes fruit 1 or more times per day. According to the NIH, there is elevated risk of having diabetes when the patient has a higher BMI (https://pmc.ncbi.nlm.nih.gov/articles/PMC4457375/). Diabetes is also known to elevated the "bad" cholesterol in the body while decreasing the amount of "good" cholesterol (https://www.heart.org/en/health-topics/diabetes/diabetes-complications-and-risks/cholesterol-abnormalities--diabetes). Fruit is a naturally sugary food, therefore, many people with diabetes may have to take into account the portions of fruit being eaten which could indicate the presence of diabetes in the responders. 
+
+## Data
+```{r}
+data <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv", fileEncoding = "latin1")
+```
+
+## Summarizations
+
+
