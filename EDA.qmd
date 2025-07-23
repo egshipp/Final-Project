@@ -23,4 +23,57 @@ data <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv", fileEncoding
 
 ## Summarizations
 
+### Variable 1: BMI
+
+```{r}
+
+# Univariate
+summary(data$BMI)
+
+hist(data$BMI, breaks = 30, main = "Distribution of BMI", xlab = "BMI")
+
+# Bivariate
+boxplot(BMI ~ Diabetes_binary, data = data,
+        names = c("No Diabetes", "Prediabetes/Diabetes"),
+        main = "BMI by Diabetes Status", ylab = "BMI")
+```
+
+### Variable 2: High Cholesterol
+```{r}
+# Univariate
+prop.table(table(data$HighChol))
+
+barplot(table(data$HighChol),
+        names.arg = c("No High Chol", "High Chol"),
+        main = "High Cholesterol Distribution")
+
+#Bivariate
+library(ggplot2)
+
+ggplot(data, aes(x = factor(HighChol), fill = factor(Diabetes_binary))) +
+  geom_bar(position = "fill") +
+  scale_x_discrete(labels = c("No High Chol", "High Chol")) +
+  scale_fill_discrete(name = "Diabetes", labels = c("No", "Yes")) +
+  ylab("Proportion") +
+  ggtitle("Diabetes Status by High Cholesterol")
+
+```
+
+### Variable 3: Fruit Consumed 
+```{r}
+# Univariate
+prop.table(table(data$Fruits))
+
+barplot(table(data$Fruits),
+        names.arg = c("<1/day", "≥1/day"),
+        main = "Fruit Consumption")
+
+# Bivariate
+ggplot(data, aes(x = factor(Fruits), fill = factor(Diabetes_binary))) +
+  geom_bar(position = "fill") +
+  scale_x_discrete(labels = c("<1/day", "≥1/day")) +
+  scale_fill_discrete(name = "Diabetes", labels = c("No", "Yes")) +
+  ylab("Proportion") +
+  ggtitle("Diabetes Status by Fruit Consumption")
+```
 
