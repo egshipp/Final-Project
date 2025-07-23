@@ -37,6 +37,7 @@ boxplot(BMI ~ Diabetes_binary, data = data,
         names = c("No Diabetes", "Prediabetes/Diabetes"),
         main = "BMI by Diabetes Status", ylab = "BMI")
 ```
+The univariate histogram and summary statistics show that the BMI variable is right skewed with an average of about 28. This makes sense as there is a lower bound for BMI at 0 with a hypothetically infinite upper bound. The bivariate summary using boxplots shows that there is not a significant difference in BMI between the groups with and without diabetes.
 
 ### Variable 2: High Cholesterol
 ```{r}
@@ -58,6 +59,7 @@ ggplot(data, aes(x = factor(HighChol), fill = factor(Diabetes_binary))) +
   ggtitle("Diabetes Status by High Cholesterol")
 
 ```
+The univariate proportion table and barplot show that there is a larger proportion of reponders without high cholesterol. The difference in proportions between responders with and without high cholesterol is about 0.16. The bivariate barplot with grouping based on whether the responder has diabetes or not shows that there is a larger proportion of responders that have high cholesterol and diabetes than no high cholesterol and diabetes. 
 
 ### Variable 3: Fruit Consumed 
 ```{r}
@@ -76,4 +78,4 @@ ggplot(data, aes(x = factor(Fruits), fill = factor(Diabetes_binary))) +
   ylab("Proportion") +
   ggtitle("Diabetes Status by Fruit Consumption")
 ```
-
+The univariate proportion table and barplot show that there is a higher proportion of responders that eat at least one fruit per day. The bivariate barplot shows that there is not much difference between the proportions of people with and without diabetes and the whether they eat fruit in a day.
