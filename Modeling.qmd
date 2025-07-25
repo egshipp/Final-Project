@@ -3,3 +3,100 @@ title: "Modeling"
 format: pdf
 editor: visual
 ---
+
+## Introduction
+
+The data being used in this project is sourced from the Behavioral Risk Factor Surveillance System (BRFSS) which is a telephone based survey that is collected annually be the CDC. There are three data sets available from the BRFSS, but the scope of this analysis is limited to one, diabetes \_ binary \_ health \_ indicators \_ BRFSS2015.csv. The variables that will be used in EDA and modeling are BMI, whether or not the responder has higher cholesterol, and whether or not the responder consumes fruit 1 or more times per day.
+
+he goal of this analysis is to train and evaluate three modeling approaches:
+
+-   Logistic Regression
+
+-   Classification Tree
+
+-   Random Forest
+
+All models will be trained using 5-fold cross-validation and evaluated using log-loss on a holdout test set.
+
+```{r}
+# Packages 
+library(tidymodels)
+
+# Read in data
+data <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv", fileEncoding = "latin1")
+
+data$HighChol <- as.factor(data$HighChol)
+data$Fruits <- as.factor(data$Fruits)
+data$Diabetes_binary <- as.factor(data$Diabetes_binary)
+
+# Select relevant variables
+data_model <- data |>
+  select(Diabetes_binary, BMI, HighChol, Fruits)
+
+  
+# Split data 
+set.seed(111)
+data_split <- initial_split(data_model, prop = 0.7)
+data_train <- training(data_split)
+data_test <- testing(data_split)
+data_cv_folds <- vfold_cv(data_train, 10)
+
+```
+
+## Logistic Regression
+Logistic regression is utilized when the response variable of interest is binary, as seen in this data using Diabetes_binary. The logit link function models the probability that the response is in a particular category. In our case, this would be the probability that the responder does or does not have diabetes.
+```{r}
+# Logistic Regression Recipes
+LR1_rec <- recipe(Diabetes_binary ~ BMI + HighChol + Fruits,
+ data = data_train) |>
+ step_normalize(BMI) |>
+ step_dummy(HighChol) |>
+ step_dummy(Fruits)
+
+LR2_rec <- recipe(Diabetes_binary ~ BMI,
+ data = data_train) |>
+ step_normalize(BMI)
+
+LR3_rec <- recipe(Diabetes_binary ~ BMI + HighChol,
+ data = data_train) |>
+ step_normalize(BMI) |>
+ step_dummy(HighChol)
+
+# Set engine
+LR_spec <- logistic_reg() |>
+ set_engine("glm")
+
+# Set workflows
+LR1_wkf <- workflow() |>
+ add_recipe(LR1_rec) |>
+ add_model(LR_spec)
+
+LR2_wkf <- workflow() |>
+ add_recipe(LR2_rec) |>
+ add_model(LR_spec)
+
+LR3_wkf <- workflow() |>
+ add_recipe(LR3_rec) |>
+ add_model(LR_spec)
+
+# Fit to CV folds 
+LR1_fit <- LR1_wkf |>
+ fit_resamples(data_cv_folds, metrics = metric_set(mn_log_loss))
+
+LR2_fit <- LR2_wkf |>
+ fit_resamples(data_cv_folds, metrics = metric_set(mn_log_loss))
+
+LR3_fit <- LR3_wkf |>
+ fit_resamples(data_cv_folds, metrics = metric_set(mn_log_loss))
+
+# Collect metrics
+bind_rows(
+  collect_metrics(LR1_fit) |> mutate(model = "LR1") 
+    |> select(-.config, - .estimator, -n),
+  collect_metrics(LR2_fit) |> mutate(model = "LR2")
+    |> select(-.config, - .estimator, -n),
+  collect_metrics(LR3_fit) |> mutate(model = "LR3")
+    |> select(-.config, - .estimator, -n)
+)
+```
+It can be seen that the best fit model is LR1 which is a purely additive model using all 3 variables of interest. This model has the lowest log loss, therefore, it performs the best in classification. 
