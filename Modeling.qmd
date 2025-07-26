@@ -21,6 +21,7 @@ All models will be trained using 5-fold cross-validation and evaluated using log
 ```{r}
 # Packages 
 library(tidymodels)
+library(yardstick)
 
 # Read in data
 data <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv", fileEncoding = "latin1")
@@ -44,7 +45,9 @@ data_cv_folds <- vfold_cv(data_train, 10)
 ```
 
 ## Logistic Regression
+
 Logistic regression is utilized when the response variable of interest is binary, as seen in this data using Diabetes_binary. The logit link function models the probability that the response is in a particular category. In our case, this would be the probability that the responder does or does not have diabetes.
+
 ```{r}
 # Logistic Regression Recipes
 LR1_rec <- recipe(Diabetes_binary ~ BMI + HighChol + Fruits,
@@ -99,4 +102,50 @@ bind_rows(
     |> select(-.config, - .estimator, -n)
 )
 ```
-It can be seen that the best fit model is LR1 which is a purely additive model using all 3 variables of interest. This model has the lowest log loss, therefore, it performs the best in classification. 
+
+It can be seen that the best fit model is LR1 which is a purely additive model using all 3 variables of interest. This model has the lowest log loss, therefore, it performs the best in classification.
+
+## Classification Tree
+
+Tree based methods attempt to split up the predictor space into regions. In a classification tree, regions designate the most prevalent class as the prediction.
+
+```{r}
+# Creating the tree recipe 
+tree_rec <- recipe(Diabetes_binary ~ ., data = data_train) |>
+ step_normalize(BMI) |>
+ step_dummy(HighChol) |>
+ step_dummy(Fruits)
+
+# Setting tree mode and tuning 
+tree_mod <- decision_tree(tree_depth = tune(),
+                          min_n = 20,
+                          cost_complexity = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+
+# Create workflow
+tree_wkf <- workflow() |>
+  add_recipe(tree_rec) |>
+  add_model(tree_mod)
+
+# Select tuning parameters using CV
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth(),
+                          levels = c(10, 3))
+
+tree_fits <- tree_wkf |> 
+  tune_grid(resamples = data_cv_folds,
+            grid = tree_grid,
+             metrics = metric_set(mn_log_loss))
+
+# Selecting best fit
+tree_best_params <- select_best(tree_fits, metric = "mn_log_loss")
+
+tree_final_wkf <- tree_wkf |>
+  finalize_workflow(tree_best_params)
+
+tree_final_fit <- tree_final_wkf |>
+  last_fit(data_split)
+
+collect_metrics(tree_final_fit)
+```
