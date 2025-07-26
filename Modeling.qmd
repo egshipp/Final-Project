@@ -138,6 +138,12 @@ tree_fits <- tree_wkf |>
             grid = tree_grid,
              metrics = metric_set(mn_log_loss))
 
+# Checking metrics
+tree_fits |>
+ collect_metrics() |>
+ filter(.metric == "mn_log_loss") |>
+ arrange(mean)
+
 # Selecting best fit
 tree_best_params <- select_best(tree_fits, metric = "mn_log_loss")
 
@@ -145,9 +151,9 @@ tree_final_wkf <- tree_wkf |>
   finalize_workflow(tree_best_params)
 
 tree_final_fit <- tree_final_wkf |>
-  last_fit(data_split)
+  last_fit(data_split, metrics = metric_set(mn_log_loss))
 
-collect_metrics(tree_final_fit)
+tree_final_fit |> collect_metrics()
 ```
 ## Random Forest
 Random forest modeling is an extension of classification trees in which multiple classification trees are generated using different subsets of the data and variables. The most common classification across the trees becomes the prediction for that level. 
@@ -189,8 +195,8 @@ final_wkf <- rf_wkf |>
 rf_final_fit <- final_wkf |>
  last_fit(data_split, metrics = metric_set(accuracy, mn_log_loss))
 
-rf_final_fit |> collect_metrics()
+rf_final_fit |> collect_metrics() |> filter(.metric == "mn_log_loss")
 ```
-
+## Final Model Selection
 
 
