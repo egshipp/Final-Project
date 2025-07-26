@@ -149,3 +149,48 @@ tree_final_fit <- tree_final_wkf |>
 
 collect_metrics(tree_final_fit)
 ```
+## Random Forest
+Random forest modeling is an extension of classification trees in which multiple classification trees are generated using different subsets of the data and variables. The most common classification across the trees becomes the prediction for that level. 
+```{r}
+# Create forest recipe
+tree_rec <- recipe(Diabetes_binary ~ ., data = data_train) |>
+ step_normalize(BMI) |>
+ step_dummy(HighChol) |>
+ step_dummy(Fruits)
+
+# Set engine and mode
+rf_spec <- rand_forest(mtry = tune()) |>
+ set_engine("ranger") |>
+ set_mode("classification")
+
+# Create workflow
+rf_wkf <- workflow() |>
+ add_recipe(tree_rec) |>
+ add_model(rf_spec)
+
+# Fit to CV folds
+f_fit <- rf_wkf |>
+ tune_grid(resamples = data_cv_folds,
+ grid = 7,
+ metrics = metric_set(accuracy, mn_log_loss))
+
+# Checking metrics
+f_fit |>
+ collect_metrics() |>
+ filter(.metric == "mn_log_loss") |>
+ arrange(mean)
+
+# Select best tuning parameter
+rf_best_params <- select_best(f_fit, metric = "mn_log_loss")
+
+# Refit on entire training with best tuning parameter
+final_wkf <- rf_wkf |>
+ finalize_workflow(rf_best_params)
+rf_final_fit <- final_wkf |>
+ last_fit(data_split, metrics = metric_set(accuracy, mn_log_loss))
+
+rf_final_fit |> collect_metrics()
+```
+
+
+
