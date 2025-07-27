@@ -47,7 +47,7 @@ function(BMI = 28.7, HighChol = 0, Fruits = 1) {
     Fruits = as.factor(Fruits)
   )
   
-  prediction <- predict(final_model, input, type = "prob")$.pred_1
+  prediction <- predict(final_fit, input, type = "prob")$.pred_1
   list(prob_diabetes = prediction)
 }
 
