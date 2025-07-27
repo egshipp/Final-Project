@@ -155,8 +155,11 @@ tree_final_fit <- tree_final_wkf |>
 
 tree_final_fit |> collect_metrics()
 ```
+
 ## Random Forest
-Random forest modeling is an extension of classification trees in which multiple classification trees are generated using different subsets of the data and variables. The most common classification across the trees becomes the prediction for that level. 
+
+Random forest modeling is an extension of classification trees in which multiple classification trees are generated using different subsets of the data and variables. The most common classification across the trees becomes the prediction for that level.
+
 ```{r}
 # Create forest recipe
 tree_rec <- recipe(Diabetes_binary ~ ., data = data_train) |>
@@ -197,6 +200,7 @@ rf_final_fit <- final_wkf |>
 
 rf_final_fit |> collect_metrics() |> filter(.metric == "mn_log_loss")
 ```
+
 ## Final Model Selection
 
 ```{r}
@@ -218,4 +222,5 @@ final_results <- bind_rows(lr_metrics, tree_metrics, rf_metrics) |>
 
 print(final_results)
 ```
+
 It can be seen that the model that performed the best at predicting whether the responder has diabetes or not is the Random Forest model. The Random Forest model has the smallest log loss showing of 0.361, therefore, it is the best performing model.
