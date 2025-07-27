@@ -8,7 +8,7 @@ editor: visual
 
 The data being used in this project is sourced from the Behavioral Risk Factor Surveillance System (BRFSS) which is a telephone based survey that is collected annually be the CDC. There are three data sets available from the BRFSS, but the scope of this analysis is limited to one, diabetes \_ binary \_ health \_ indicators \_ BRFSS2015.csv. The variables that will be used in EDA and modeling are BMI, whether or not the responder has higher cholesterol, and whether or not the responder consumes fruit 1 or more times per day.
 
-he goal of this analysis is to train and evaluate three modeling approaches:
+The goal of this analysis is to train and evaluate three modeling approaches:
 
 -   Logistic Regression
 
@@ -16,7 +16,7 @@ he goal of this analysis is to train and evaluate three modeling approaches:
 
 -   Random Forest
 
-All models will be trained using 5-fold cross-validation and evaluated using log-loss on a holdout test set.
+All models will be trained using 10-fold cross-validation and evaluated using log-loss on a holdout test set.
 
 ```{r}
 # Packages 
@@ -199,4 +199,23 @@ rf_final_fit |> collect_metrics() |> filter(.metric == "mn_log_loss")
 ```
 ## Final Model Selection
 
+```{r}
+lr_metrics <- collect_metrics(LR1_fit) |>
+  filter(.metric == "mn_log_loss") |>
+  mutate(model = "Logistic Regression") |>
+  rename(.estimate = mean)
 
+tree_metrics <- collect_metrics(tree_final_fit) |>
+  filter(.metric == "mn_log_loss") |>
+  mutate(model = "Classification Tree")
+
+rf_metrics <- collect_metrics(rf_final_fit)|>
+  filter(.metric == "mn_log_loss") |>
+  mutate(model = "Random Forest")
+
+final_results <- bind_rows(lr_metrics, tree_metrics, rf_metrics) |>
+  select(model, .metric, .estimate)
+
+print(final_results)
+```
+It can be seen that the model that performed the best at predicting whether the responder has diabetes or not is the Random Forest model. The Random Forest model has the smallest log loss showing of 0.361, therefore, it is the best performing model.
