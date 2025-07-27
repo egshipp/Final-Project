@@ -1,6 +1,6 @@
 ---
 title: "EDA"
-format: pdf
+format: html
 editor: visual
 ---
 
