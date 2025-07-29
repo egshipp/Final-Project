@@ -80,4 +80,4 @@ ggplot(data, aes(x = factor(Fruits), fill = factor(Diabetes_binary))) +
 
 The univariate proportion table and barplot show that there is a higher proportion of responders that eat at least one fruit per day. The bivariate barplot shows that there is not much difference between the proportions of people with and without diabetes and the whether they eat fruit in a day.
 
-[Continue to the Modeling Writeup ➡️](Modeling.html)
+[Continue to the Modeling Writeup ](https://egshipp.github.io/Final-Project/Modeling.html)
